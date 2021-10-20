@@ -1,0 +1,310 @@
+---
+swagger: "2.0"
+info:
+  description: "Welcome to the Financial Services API documentation"
+  version: "1"
+  title: "fs-proxy-1"
+host: "cat.api.firstdata.com"
+basePath: "/fs"
+schemes:
+- "https"
+paths:
+  /payments/v2/autoPayments:
+    post:
+      tags:
+      - "Payments"
+      summary: "NM23, NM39, NM53, NM91, NM 191, NM642, NM679, NM696, NM728, NM729,\
+        \ NM729, NM730, NM791*70"
+      description: "NM*23 - Charge DDA Flag\n NM*39 - Fixed Minimum Payment Amount\
+        \ \nNM*53 - Transit Routing Number \nNM*91 - Designated Automatic Payment\n\
+        NM*191 - Authorization Strategy Identification\nNM*642 - Automatic Payment\
+        \ Date Range\nNM*679 - Skip Auto Pay Flag\nNM*696 - Temporary Automatic Payment\
+        \ Amount\nNM*728 - Automatic Payment Percent Balance\nNM*729 - Automatic Payment\
+        \ Ceiling Amount\nNM*730 - Demand Deposit Account Name\n\nNM*791*70 - Autopay\
+        \ Enrollment Type Code\n\nRequired Fields: common.accountId or common.presentationId.\n\
+        NM*23: Multiple Fields - autoPaymentChargeDdaFlag, autoPaymentChargeDdaCode,\
+        \ autoPaymentChargeDdaAmount.\nNM*642: Multiple Fields - autoPaymentStartDate,\
+        \ autoPaymentEndDate. If autoPaymentEndDate is not filled in, defaults to\
+        \ 999999 (never ending)."
+      operationId: "autoPayments_v2_payments"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: false
+        schema:
+          $ref: "#/definitions/AutoPaymentsRequest"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/UpdateResult"
+        "401":
+          description: "Unauthorized: Authorization failed due to missing or invalid\
+            \ credentials"
+        "403":
+          description: "Forbidden: Insufficient access for requested operation"
+        "452":
+          description: "System Exception: Internal processes not related to client\
+            \ interaction with application are the cause of the failure"
+        "453":
+          description: "Validation Exception: The request failed validation, modify\
+            \ the request and resubmit"
+        "455":
+          description: "ODS Error Exception: ODS returned a message with transaction\
+            \ status ERROR"
+      deprecated: false
+      x-proxy-name: "autoPayments"
+      x-region:
+      - "North America"
+      x-display: "Payments"
+definitions:
+  AccountHeader:
+    type: "object"
+    properties:
+      user:
+        type: "string"
+        description: "Setting this value will assign OCS user id for internal ODS\
+          \ Calls for auditing."
+      agent:
+        type: "string"
+        example: 4000
+        description: "Agent, copyBookList = [{copybook:\"CCNDPUBS\", fields:[{name:\"\
+          'PMXDS'-RI-ACCT-LVL-3\", length:\"4\", eventTypes:[\"\"]}]}, {copybook:\"\
+          CCTOKNWS\", fields:[{name:\"'XXX'-AGENT-NR\", length:\"4\", eventTypes:[\"\
+          TOKEN\"]}]}, {copybook:\"MCATDSHB\", fields:[{name:\"&T.AGENT\", length:\"\
+          4\", eventTypes:[\"TRAN\"]}]}, {copybook:\"MCPIPDAT\", fields:[{name:\"\
+          &T.AGENT\", length:\"4\", eventTypes:[\"TRAN\"]}]}], eventTypeList:[\"ALL\"\
+          ]"
+      cycle:
+        type: "string"
+        example: "T"
+        description: "Setting this value will assign cycle destination for backend\
+          \ system, copyBookList = [{copybook:\"MCATDSHB\", fields:[{name:\"&T.CYCLE\"\
+          , length:\"1\", eventTypes:[\"TRAN\"]}]}, {copybook:\"MCPIPDAT\", fields:[{name:\"\
+          &T.CENTER\", length:\"1\", eventTypes:[\"TRAN\"]}]}], eventTypeList:[\"\
+          TRAN\"]"
+      clientNumber:
+        type: "string"
+        example: 1000
+        description: "Client Number, copyBookList = [{copybook:\"CCNDPUBS\", fields:[{name:\"\
+          'PMXDS'-RI-CLIENT-ID\", length:\"4\", eventTypes:[\"\"]}]}, {copybook:\"\
+          CCTOKNWS\", fields:[{name:\"'XXX'-CLIENT-NR\", length:\"4\", eventTypes:[\"\
+          TOKEN\"]}]}, {copybook:\"MCATDSHB\", fields:[{name:\"&T.CLIENT\", length:\"\
+          4\", eventTypes:[\"TRAN\"]}]}, {copybook:\"MCPIPDAT\", fields:[{name:\"\
+          &T.CLIENT\", length:\"4\", eventTypes:[\"TRAN\"]}]}], eventTypeList:[\"\
+          ALL\"]"
+      system:
+        type: "string"
+        example: 2000
+        description: "A client often has more than one Billing System/Prin.  A client\
+          \ uses Billing System/Prins to segregate their expenses on their General\
+          \ Ledger for accounting purposes.System, copyBookList = [{copybook:\"CCNDPUBS\"\
+          , fields:[{name:\"'PMXDS'-RI-ACCT-LVL-1\", length:\"4\", eventTypes:[\"\"\
+          ]}]}, {copybook:\"CCTOKNWS\", fields:[{name:\"'XXX'-SYSTEM-NR\", length:\"\
+          4\", eventTypes:[\"TOKEN\"]}]}, {copybook:\"MCATDSHB\", fields:[{name:\"\
+          &T.SYS\", length:\"4\", eventTypes:[\"TRAN\"]}]}, {copybook:\"MCPIPDAT\"\
+          , fields:[{name:\"&T.SYS\", length:\"4\", eventTypes:[\"TRAN\"]}]}], eventTypeList:[\"\
+          ALL\"]"
+      prin:
+        type: "string"
+        example: 3000
+        description: "A client often has more than one Billing System/Prin.  A client\
+          \ uses Billing System/Prins to segregate their expenses on their General\
+          \ Ledger for accounting purposes.Principal, copyBookList = [{copybook:\"\
+          CCNDPUBS\", fields:[{name:\"'PMXDS'-RI-ACCT-LVL-2\", length:\"4\", eventTypes:[\"\
+          \"]}]}, {copybook:\"CCTOKNWS\", fields:[{name:\"'XXX'-PRIN-NR\", length:\"\
+          4\", eventTypes:[\"TOKEN\"]}]}, {copybook:\"MCATDSHB\", fields:[{name:\"\
+          &T.PRIN\", length:\"4\", eventTypes:[\"TRAN\"]}]}, {copybook:\"MCPIPDAT\"\
+          , fields:[{name:\"&T.PRIN\", length:\"4\", eventTypes:[\"TRAN\"]}]}], eventTypeList:[\"\
+          ALL\"]"
+      debug:
+        type: "boolean"
+        description: "Setting this value to false will disable additional error details\
+          \ from backend calls."
+        default: false
+      org:
+        type: "string"
+        description: "Setting this value will assign to the organization identifier."
+      processor:
+        type: "boolean"
+        description: "Setting this value to true will return processor information\
+          \ on the response. Defaults to false"
+        default: false
+      contentType:
+        type: "string"
+      retry:
+        type: "integer"
+        format: "int64"
+        description: "The retry count for the same request sent to First Data. This\
+          \ is used for internal resubmission tracking."
+      timeout:
+        type: "integer"
+        format: "int64"
+        description: "How long the request should be tried before timing out."
+      cid:
+        type: "string"
+      siteId:
+        type: "string"
+        example: "4201"
+        description: "This field will be used by the service to determine the First\
+          \ Track, First Dispute, Fraud Detection Work Center destination. Site Id\
+          \ will be provided by these applications to the calling applications "
+      externalCustomerId:
+        type: "string"
+        description: "Client specific, external to FiServ, customer identifier."
+      accountId:
+        type: "string"
+        example: "8888888888888888"
+        description: "Account identifier on the system of record."
+      presentationId:
+        type: "string"
+        description: "Presentment account identifier, also can be referred to as a\
+          \ card number."
+  AutoPaymentsRequest:
+    type: "object"
+    properties:
+      common:
+        $ref: "#/definitions/AccountHeader"
+      autoPaymentPercentOfBalance:
+        type: "string"
+        description: "Percent of account balance that must be paid, Length 6"
+      autoPaymentCeilingAmount:
+        type: "string"
+        description: "Maximum amount an account is expected to pay, Length 13 (MFE\
+          \ processors) Length 7 (NON-MFE PROCESSORS)"
+      autoPaymentDemandDepositAccountName:
+        type: "string"
+        description: "Name on the demand deposit account from which the payment will\
+          \ be withdrawn, Length 22"
+      skipAutoPayFlag:
+        type: "string"
+        description: "Code determining whether to suspend the cardholder?s automatic\
+          \ payment for the current cycle.\nValid Codes:\nC - Suspend the cardholder?s\
+          \ automatic payment for the current cycle.\nN - Do not suspend the cardholder?s\
+          \ automatic payment for the current cycle. "
+      temporaryAutomaticPaymentAmount:
+        type: "string"
+        description: "Temporary override amount to be withdrawn for the next payment\
+          \ if the cardholder is enrolled in an automatic payment program. "
+      autoPaymentStartDate:
+        type: "string"
+        description: "Date you want the cardholder's automatic payment processing\
+          \ eligibility to begin. Ods Format MMDDYY"
+      autoPaymentEndDate:
+        type: "string"
+        description: "Date you want the cardholder's automatic payment eligibility.\
+          \ Ods Format MMDDYY"
+      autoPaymentDesignatedAmount:
+        type: "string"
+        description: "Amount the cardholder agreed to pay via the automatic payment\
+          \ option. Length 13 (MFE processors) Length 7 (NON-MFE PROCESSORS)"
+      autoPaymentFixedMinimumAmount:
+        type: "string"
+        description: "Amount of payment due for the account in order to avoid delinquency.\
+          \ Length 13 (MFE processors) Length 7 (NON-MFE PROCESSORS)"
+      autoPaymentChargeDdaFlag:
+        type: "string"
+        description: "### Code - Calculation Option Title - Payment Source\n**A**:\
+          \ Minimum Payment Due Minus Delinquent Amount - Checking\n**B**: Minimum\
+          \ Payment Due Minus Delinquent Amount - Savings\n **C**: Last Statemented\
+          \ Balance Times Balance Calculation Rate - Checking\n**D**: Last Statemented\
+          \ Balance Times Balance Calculation Rate - Savings\n**E**: Full Balance\
+          \ Amount - Checking\n**F**: Full Balance Amount - Savings\n**G**: Minimum\
+          \ Payment Due Minus Cycle-to-date Payments, Returns, and Special Credits\
+          \ - Checking\n**H**: Customer-Designated Amount Plus Unpaid Billed Minimum\
+          \ Payment Due - Checking\n**I**: Minimum Payment Due Minus Cycle-to-date\
+          \ Payments, Returns, and Special Credits - Savings\n**J**: Customer-Designated\
+          \ Amount - Checking\n**K**: Customer-Designated Amount - Savings\n**L**:\
+          \ Customer-Designated Amount Minus Cycle-to-date Payments, Returns, and\
+          \ Special Credits - Checking\n**M**: Customer-Designated Amount Minus Cycle-to-date\
+          \ Payments, Returns, and Special Credits - Savings\n**N**: Daily Current\
+          \ Balance Option - Checking\n**O**: Daily Current Balance Option - Savings\n\
+          **P**: Payment Fixed Amount Minus Cycle-to-date Payments - Checking\n**Q**:\
+          \ Payment Fixed Amount Minus Cycle-to-date Payments - Savings\n**R**: Customer-Designated\
+          \ Amount or Unpaid Billed Minimum Payment Due Plus Overlimit Amount - Checking\n\
+          **S**: Customer-Designated Amount or Unpaid Billed Minimum Payment Due Plus\
+          \ Overlimit Amount - Savings\n**T**: Unpaid Billed Minimum Payment Due Plus\
+          \ Overlimit Amount - Checking\n**U**: Unpaid Billed Minimum Payment Due\
+          \ Plus Overlimit Amount - Savings\n**V**: Customer-Designated Amount Minus\
+          \ Cycle-to-Date Payments - Checking\n**W**: Customer-Designated Amount Minus\
+          \ Cycle-to-Date Payments - Savings\n**X**: Customer-Designated Amount Plus\
+          \ Unpaid Billed Minimum Payment Due - Savings\n**Y**: Customer-Designated\
+          \ Amount and Unpaid Billed Minimum Payment Due Plus Overlimit Amount - Checking\n\
+          **Z**: Customer-Designated Amount and Unpaid Billed Minimum Payment Due\
+          \ Plus Overlimit Amount - Savings\n**0**: Automatic payment is not set up\
+          \ for this account - N/A\n**1**: Unpaid Billed Minimum Payment Due - Checking\n\
+          **2**: Full Statemented Balance or Unpaid Billed Minimum Payment Due - Checking\n\
+          **3**: Full Statemented Balance Including Disputes - Checking / Savings\n\
+          **4**: Full Statemented Balance - Checking\n**5**: Unpaid Billed Minimum\
+          \ Payment Due - Savings\n**6**: Unpaid Billed Minimum Payment Due - Savings\n\
+          **7**: Full Statemented Balance - Savings\n**8**: Full Statemented Balance\
+          \ Including Disputes Minus Cycle-to-Date Payments - Checking / Savings\n\
+          **9**: Customer-Designated Amount or Unpaid Billed Minimum Payment Due -\
+          \ Checking / Savings\n"
+      autoPaymentChargeDdaCode:
+        type: "string"
+        description: "### Valid codes:\n **C**: Checking account\n **S**: Savings\
+          \ account\n**blank**: Do not use automatic payment feature"
+      autoPaymentChargeDdaAccount:
+        type: "string"
+        description: "Checking or savings account number. Length 17"
+      autoPaymentRoutingNumber:
+        type: "string"
+        description: "Transit Routing Number on the cardholder account record. Length\
+          \ 9"
+      autoPaymentStrategyIdentifier:
+        type: "string"
+        description: "Issuer-assigned code representing the authorization override\
+          \ strategy for this account, Length 4"
+      autoPaymentEnrollmentTypeCode:
+        type: "string"
+        description: "Code representing the source of the account?s enrollment in\
+          \ the\nautomatic payment program, Valid codes:\nP - Paper\nT - Telephone\n\
+          W - Web\nblank - Either not enrolled or the enrollment source is not known"
+  ProcessorInfo:
+    type: "object"
+    properties:
+      system:
+        type: "string"
+        description: "System where the Processing took Place."
+      cycle:
+        type: "string"
+        description: "Cycle where the Processing took Place."
+      tor:
+        type: "string"
+        description: "Terminal Owning Region in CICS where the transaction was initially\
+          \ received."
+      mode:
+        type: "string"
+        description: "Capabilities of the processing environment. READ/WRITE or  READ\
+          \ ONLY."
+  ResponseMessage:
+    type: "object"
+    properties:
+      resultCode:
+        type: "string"
+      messageText:
+        type: "string"
+      transactionStatus:
+        type: "string"
+  UpdateResult:
+    type: "object"
+    properties:
+      processorInfo:
+        description: "Processor info. Only available if common.processor is true in\
+          \ the request."
+        $ref: "#/definitions/ProcessorInfo"
+      messages:
+        type: "array"
+        description: "List of response messages from server. "
+        items:
+          $ref: "#/definitions/ResponseMessage"
+x-config:
+  tryItOut: true
+  tryItOutLogin:
+    enable: true
+    developerApps:
+      enable: false
+      requestHeaderName: "x-apikey"
